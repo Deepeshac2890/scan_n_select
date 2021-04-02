@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "39734826666",
+    "project_id": "scannselect",
+    "storage_bucket": "scannselect.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39734826666:android:99bc93a630412e6d8862d3",
+        "android_client_info": {
+          "package_name": "com.example.scan_n_select"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "39734826666-8moikorts1r2pifl7jkhl23ae6hb5mv9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUfXAyeyXUMR-5dhps9vLJA8tAGZorxfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "39734826666-8moikorts1r2pifl7jkhl23ae6hb5mv9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
