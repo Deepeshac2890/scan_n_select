@@ -17,6 +17,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:scan_n_select/Keys.dart';
 import 'package:scan_n_select/Screens/WelcomeScreen.dart';
 
 class SuggestorInfoCollector extends StatefulWidget {
@@ -26,8 +27,6 @@ class SuggestorInfoCollector extends StatefulWidget {
 }
 
 FirebaseAuth fa = FirebaseAuth.instance;
-const kGoogleApiKey = "AIzaSyC7OgxZki0oQ-gSRns_94RGUH43ap9wjoo";
-String weatherKey = 'XNSG9ZYE89FFR4Z2ZC8WDAB7C';
 final homeScaffoldKey = GlobalKey<ScaffoldState>();
 TextEditingController ted = TextEditingController();
 FirebaseStorage fbs = FirebaseStorage.instance;
