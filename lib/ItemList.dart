@@ -12,7 +12,7 @@ const List<String> itemList = [
   'Lower',
   'Socks',
   'Shoes',
-  'Sandles',
+  'Sandals',
   'Slipper'
 ];
 
