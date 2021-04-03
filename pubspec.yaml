@@ -26,7 +26,7 @@ dependencies:
   cloud_firestore: ^0.9.13+1
   modal_progress_hud: ^0.1.3
   rflutter_alert: ^1.0.3
-  barcode_scan: ^1.0.0
+  qrscan: ^0.2.17
 
 dev_dependencies:
   flutter_test:

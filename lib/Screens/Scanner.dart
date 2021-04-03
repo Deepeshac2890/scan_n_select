@@ -1,6 +1,5 @@
-import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
 
 class Scanner extends StatefulWidget {
   static String id = 'Scanner_Screen';
@@ -12,9 +11,9 @@ bool backCamera = true;
 
 class _ScannerState extends State<Scanner> {
   String qrResult;
-  String itemType;
-  String color;
-  String materialType;
+  String itemType = '';
+  String color = '';
+  String materialType = '';
 
   @override
   void initState() {
@@ -54,6 +53,7 @@ class _ScannerState extends State<Scanner> {
   }
 
   Widget getWidget() {
+    // scan();
     if (qrResult == null) {
       return Expanded(
         child: GestureDetector(
@@ -77,6 +77,7 @@ class _ScannerState extends State<Scanner> {
         ),
       );
     } else {
+      print(qrResult + 'On Success');
       return Container(
         margin: EdgeInsets.all(10),
         padding: EdgeInsets.all(10),
@@ -89,7 +90,21 @@ class _ScannerState extends State<Scanner> {
               height: 10,
             ),
             Text(
-              'Item Type -> ',
+              'Item Type -> ' + itemType,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              'Color -> ' + color,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              'Material Type -> ' + materialType,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -101,33 +116,25 @@ class _ScannerState extends State<Scanner> {
     }
   }
 
-  void getData() {
-    print(qrResult.indexOf('_'));
+  void getData(String qrData) {
+    itemType = qrData.substring(0, qrData.indexOf('_'));
+    String rest = qrData.substring(qrData.indexOf('_') + 1, qrData.length);
+    color = rest.substring(0, rest.indexOf('_'));
+    rest = rest.substring(rest.indexOf('_') + 1, rest.length);
+    materialType = rest;
+    setState(() {});
   }
 
   Future scan() async {
     try {
-      String barcode = await BarcodeScanner.scan();
-      setState(() => () {
-            print(barcode);
-            if (!barcode.contains('null')) {
-              this.qrResult = barcode;
-            }
-          });
-      getData();
-    } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.CameraAccessDenied) {
-        setState(() {
-          this.qrResult = 'The user did not grant the camera permission!';
-        });
-      } else {
-        setState(() => this.qrResult = 'Unknown error: $e');
-      }
-    } on FormatException {
-      setState(() => this.qrResult =
-          'null (User returned using the "back"-button before scanning anything. Result)');
+      String barcode = await scanner.scan();
+      qrResult = barcode;
+      getData(barcode);
+      setState(() {
+        qrResult = barcode;
+      });
     } catch (e) {
-      setState(() => this.qrResult = 'Unknown error: $e');
+      print(e);
     }
   }
 }

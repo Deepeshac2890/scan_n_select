@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Components/ReusablePaddingWidget.dart';
-import 'package:scan_n_select/Screens/Scanner.dart';
+import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
 
 import '../Constants.dart';
 
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           isSpinning = false;
         });
-        Navigator.pushNamed(context, Scanner.id);
+        Navigator.pushNamed(context, GeneratorInfoCollector.id);
       }
     } catch (e) {
       print(e);

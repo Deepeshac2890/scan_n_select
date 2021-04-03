@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:palette_generator/palette_generator.dart';
 import 'package:scan_n_select/ItemList.dart';
 import 'package:scan_n_select/MaterialList.dart';
 import 'package:scan_n_select/Screens/Generator.dart';
+import 'package:scan_n_select/Screens/WelcomeScreen.dart';
 
 import '../Constants.dart';
 
@@ -25,6 +27,8 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
   String colorName = 'white';
   Image img = Image.asset('assets/default.png');
   File imgFile;
+  var index;
+  FirebaseAuth fa = FirebaseAuth.instance;
   List<DropdownMenuItem<String>> ls = <DropdownMenuItem<String>>[];
   List<DropdownMenuItem<String>> material = <DropdownMenuItem<String>>[];
   TextEditingController ted = TextEditingController();
@@ -76,6 +80,15 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
           },
         ),
         title: Text('Cloth Description'),
+        actions: [
+          FlatButton(
+              onPressed: () {
+                fa.signOut();
+                Navigator.popUntil(
+                    context, ModalRoute.withName(WelcomeScreen.id));
+              },
+              child: Icon(Icons.logout))
+        ],
       ),
       body: Container(
         padding: EdgeInsets.all(24),
@@ -83,7 +96,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Flexible(
-              flex: 4,
+              flex: 7,
               child: Center(
                 child: GestureDetector(
                   onTap: () {
@@ -101,7 +114,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
               val: 20,
             ),
             Text(
-              'Item Type',
+              'Item Type *',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
             HeightSpacer(
@@ -114,7 +127,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
             Row(children: [
               Flexible(
                 child: Text(
-                  'Item Color',
+                  'Item Color *',
                   style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
                 ),
               ),
@@ -155,13 +168,38 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
               val: 20,
             ),
             Text(
-              'Material Type',
+              'Material Type *',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
             HeightSpacer(val: 10),
             getPicker(1),
             HeightSpacer(
               val: 20,
+            ),
+            Text(
+              'If more than 1 Pair of Same Item Available',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            HeightSpacer(val: 5),
+            GestureDetector(
+              onHorizontalDragDown: (dragDown) {
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
+                setState(() {
+                  // This is used to remove focus from TextField !!!
+                  FocusScope.of(context).unfocus();
+                });
+              },
+              child: TextField(
+                decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Please Enter Index of This Item'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  index = value;
+                },
+              ),
+            ),
+            HeightSpacer(
+              val: 5,
             ),
             FlatButton(
               minWidth: MediaQuery.of(context).size.width * 0.85,
@@ -177,8 +215,8 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return Generator(
-                            selectedMaterial, selectedType, itemColor);
+                        return Generator(selectedMaterial, selectedType,
+                            itemColor, imgFile, index);
                       },
                     ),
                   );
