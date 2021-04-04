@@ -18,8 +18,10 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Keys.dart';
+import 'package:scan_n_select/Screens/Scanner.dart';
 import 'package:scan_n_select/Screens/WelcomeScreen.dart';
 
+// Keys have been moved to a Local File to protect them.
 class SuggestorInfoCollector extends StatefulWidget {
   static String id = 'Suggestor_Info_Collector_Screen';
   @override
@@ -44,6 +46,8 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
   List<int> itemQuant = [];
   var loggedInUser;
   var cPdf = pw.Document();
+  List<List<String>> ls = [];
+  bool showBottomButton = false;
 
   bool _decideWhichDayToEnableStart(DateTime day) {
     if (day.isAfter(DateTime.now().subtract(
@@ -247,33 +251,40 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // ignore: deprecated_member_use
-                  FlatButton(
-                    onPressed: () {
-                      // Generate PDF
-                      generatePDF();
-                    },
-                    child: Text(
-                      'Generate PDF of List',
-                      style: TextStyle(color: Colors.white),
+                  Visibility(
+                    visible: showBottomButton,
+                    // ignore: deprecated_member_use
+                    child: FlatButton(
+                      onPressed: () {
+                        // Generate PDF
+                        generatePDF();
+                      },
+                      child: Text(
+                        'Generate PDF of List',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      color: Colors.blueAccent,
                     ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: Colors.blueAccent,
                   ),
-                  // ignore: deprecated_member_use
-                  FlatButton(
-                    onPressed: () {
-                      // Start the Packing - Open Scanner with the List
-                      // Edit the Scanner interface
-                    },
-                    child: Text(
-                      'Start Packing',
-                      style: TextStyle(color: Colors.white),
+                  Visibility(
+                    visible: showBottomButton,
+                    // ignore: deprecated_member_use
+                    child: FlatButton(
+                      onPressed: () {
+                        // Start the Packing - Open Scanner with the List
+                        // Edit the Scanner interface
+                        startPacking();
+                      },
+                      child: Text(
+                        'Start Packing',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      color: Colors.blueAccent,
                     ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: Colors.blueAccent,
                   ),
                 ],
               )
@@ -282,6 +293,12 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
         ),
       ),
     );
+  }
+
+  void startPacking() async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Scanner(ls);
+    }));
   }
 
   void generatePDF() async {
@@ -401,13 +418,16 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
 
   Future<void> getItems(
       List<String> itemTypes, List<int> itemQuant, int l) async {
-    itemList = [];
     int i = 0;
+
+    if (l == 0) {
+      itemList = [];
+    }
+
     if (l == 1) {
       cPdf = pw.Document();
       addFirstPage();
     }
-
     var snap = await fs
         .collection('Wardrobe')
         .document(loggedInUser.uid)
@@ -435,12 +455,19 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
         int quant = itemQuant.elementAt(itemTypes.indexOf(type));
         if (quant > 0) {
           i++;
-          CustomItem cs = CustomItem(
-            color: color,
-            type: type,
-            imgUrl: url,
-          );
-          if (l == 1) {
+          if (l == 0) {
+            // This is to generate List of Items
+            CustomItem cs = CustomItem(
+              color: color,
+              type: type,
+              imgUrl: url,
+            );
+            itemList.add(cs);
+            quant = quant - 1;
+            itemQuant[itemTypes.indexOf(type)] = quant;
+            ls.add([data, type, color, index, url]);
+          } else if (l == 1) {
+            // This is for Generation of PDF
             Uint8List byteImage = await networkImageToByte(url);
             final image = pw.MemoryImage(
               byteImage,
@@ -457,21 +484,21 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
                             fontSize: 20, fontWeight: pw.FontWeight.bold),
                       ),
                       pw.SizedBox(height: 5),
-                      pw.Image(image),
+                      pw.Center(
+                        child: pw.Image(image),
+                      ),
                     ],
                   ); // Center
                 },
               ),
             );
           }
-          itemList.add(cs);
-          quant = quant - 1;
-          itemQuant[itemTypes.indexOf(type)] = quant;
         }
       }
     }
     setState(() {
       isSpinning = false;
+      showBottomButton = true;
     });
   }
 

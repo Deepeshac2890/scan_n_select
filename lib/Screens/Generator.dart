@@ -54,6 +54,7 @@ class _GeneratorState extends State<Generator> {
       appBar: AppBar(
         title: Text('QR Generator'),
         automaticallyImplyLeading: false,
+        // ignore: deprecated_member_use
         leading: FlatButton(
           child: Icon(Icons.arrow_back),
           onPressed: () {
@@ -61,6 +62,7 @@ class _GeneratorState extends State<Generator> {
           },
         ),
         actions: [
+          // ignore: deprecated_member_use
           FlatButton(
               onPressed: () {
                 fa.signOut();
@@ -75,13 +77,14 @@ class _GeneratorState extends State<Generator> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            QrImage(data: labelData),
+            Flexible(child: QrImage(data: labelData)),
             SizedBox(
               height: 10,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                // ignore: deprecated_member_use
                 FlatButton(
                   minWidth: MediaQuery.of(context).size.width * 0.3,
                   onPressed: () async {
@@ -93,6 +96,7 @@ class _GeneratorState extends State<Generator> {
                   ),
                   color: Colors.blueAccent,
                 ),
+                // ignore: deprecated_member_use
                 FlatButton(
                   minWidth: MediaQuery.of(context).size.width * 0.3,
                   onPressed: () async {
@@ -109,6 +113,7 @@ class _GeneratorState extends State<Generator> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                // ignore: deprecated_member_use
                 FlatButton(
                   minWidth: MediaQuery.of(context).size.width * 0.3,
                   onPressed: () async {
@@ -121,6 +126,7 @@ class _GeneratorState extends State<Generator> {
                   ),
                   color: Colors.blueAccent,
                 ),
+                // ignore: deprecated_member_use
                 FlatButton(
                   minWidth: MediaQuery.of(context).size.width * 0.3,
                   onPressed: () async {
@@ -136,6 +142,7 @@ class _GeneratorState extends State<Generator> {
                 ),
               ],
             ),
+            // ignore: deprecated_member_use
             FlatButton(
               minWidth: MediaQuery.of(context).size.width * 0.3,
               onPressed: () async {
