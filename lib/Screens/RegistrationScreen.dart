@@ -108,12 +108,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Flexible(
                 child: Hero(
                   tag: 'logo',
-                  child: Container(
-                    height: 200.0,
+                  child: ClipOval(
                     child: Image.asset(
                       'assets/logo.gif',
                       height: 200.0,
                       width: 200.0,
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),

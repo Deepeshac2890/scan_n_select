@@ -1,8 +1,8 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:scan_n_select/Components/ReusablePaddingWidget.dart';
-import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
 import 'package:scan_n_select/Screens/LoginScreen.dart';
+import 'package:scan_n_select/Screens/RegistrationScreen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   static String id = 'Welcome_Screen';
@@ -58,7 +58,7 @@ class WelcomeScreen extends StatelessWidget {
               tag: 'Register',
               child: Paddy(
                       op: () {
-                        Navigator.pushNamed(context, GeneratorInfoCollector.id);
+                        Navigator.pushNamed(context, RegistrationScreen.id);
                       },
                       textVal: 'Register',
                       bColor: Colors.blue)
