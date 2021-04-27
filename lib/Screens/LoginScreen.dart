@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 48.0,
                   ),
                   GestureDetector(
-                    onHorizontalDragDown: (DragDownDetails) {
+                    onHorizontalDragDown: (dragDownDetails) {
                       SystemChannels.textInput.invokeMethod('TextInput.hide');
                     },
                     child: TextField(

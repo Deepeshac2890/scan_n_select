@@ -14,6 +14,9 @@ class WeatherScreen extends StatefulWidget {
   static String id = 'Weather_Screen';
   @override
   _WeatherScreenState createState() => _WeatherScreenState();
+  WeatherScreen(String name) {
+    city = name;
+  }
 }
 
 // TODO: Change the gifs with something better
@@ -25,11 +28,23 @@ String tempo = "";
 String tempMino = "";
 String tempMaxo = "";
 String cityName = "";
+String condition = "";
+String city;
+var color = Colors.deepPurple;
 Image img = Image(
-  image: AssetImage('assets/Weather/Cloudy.gif'),
+  image: AssetImage('assets/Weather/Cloudy.png'),
 );
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  @override
+  void initState() {
+    if (city != null)
+      getCityWeather();
+    else
+      getLocation();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,53 +71,100 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ],
       ),
       body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(image: img.image, fit: BoxFit.fill),
-        ),
-        padding: EdgeInsets.all(20),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(
-            cityName,
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 40, color: Colors.white),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            getNameOfDay(DateTime.now().weekday) +
-                ', ' +
-                DateTime.now().toString().substring(
-                      0,
-                      DateTime.now().toString().indexOf(' '),
+        color: color,
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 100.0),
+              child: Center(
+                child: Text(
+                  cityName,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                DateTime.now().toLocal().toString().split(' ')[0],
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w200,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 50.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: img,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 20.0),
+                                child: Text(
+                                  '$tempo°',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    'max: $tempMaxo°',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w100,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    'min: $tempMino°',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w100,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-            style: TextStyle(
-                fontSize: 20, color: Colors.white, fontWeight: FontWeight.w300),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Text(
-            tempo + ' °C',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w900, fontSize: 80),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            height: 1,
-            width: MediaQuery.of(context).size.width * 0.8,
-            color: Colors.blueAccent,
-          ),
-          Text(
-            tempMino + ' °C ' + ' : ' + tempMaxo + ' °C',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w900, fontSize: 30),
-          ),
-        ]),
+                    Center(
+                      child: Text(
+                        condition,
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w200,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -153,8 +215,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
       lat = position.latitude.toString();
       long = position.longitude.toString();
-      final coordinates =
-          await Coordinates(position.latitude, position.longitude);
+      final coordinates = Coordinates(position.latitude, position.longitude);
       var addresses =
           await Geocoder.local.findAddressesFromCoordinates(coordinates);
       var first = addresses[3];
@@ -165,6 +226,16 @@ class _WeatherScreenState extends State<WeatherScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void getCityWeather() async {
+    List<Placemark> placemark = await Geolocator().placemarkFromAddress(city);
+    lat = placemark[0].position.latitude.toString();
+    long = placemark[0].position.longitude.toString();
+    setState(() {
+      cityName = city;
+    });
+    getWeather();
   }
 
   Future<Null> displayPrediction(Prediction p, ScaffoldState scaffold) async {
@@ -183,7 +254,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
       setState(() {
         cityName = p.description.substring(0, p.description.indexOf(','));
       });
-
       getWeather();
     }
   }
@@ -208,46 +278,51 @@ class _WeatherScreenState extends State<WeatherScreen> {
         if (icon.toLowerCase().contains('cloud')) {
           setState(() {
             img = Image(
-              image: AssetImage('assets/Weather/Cloudy.gif'),
+              image: AssetImage('assets/Weather/Cloudy.png'),
             );
+            color = Colors.deepPurple;
           });
         } else if (icon.toLowerCase().contains('wind')) {
           setState(() {
             img = Image(
               image: AssetImage('assets/Weather/Windy.gif'),
             );
+            color = Colors.lightBlue;
           });
         } else if (icon.toLowerCase().contains('sunny')) {
           setState(() {
             img = Image(
-              image: AssetImage('assets/Weather/Sunny.jpg'),
+              image: AssetImage('assets/Weather/Sunny.png'),
             );
+            color = Colors.orange;
           });
         } else if (icon.toLowerCase().contains('snow')) {
           setState(() {
             img = Image(
-              image: AssetImage('assets/Weather/Snow.gif'),
+              image: AssetImage('assets/Weather/Snow.png'),
             );
+            color = Colors.deepOrange;
           });
         } else if (icon.toLowerCase().contains('rain')) {
           setState(() {
             img = Image(
-              image: AssetImage('assets/Weather/Rain.gif'),
+              image: AssetImage('assets/Weather/Rainy.png'),
             );
+            color = Colors.blue;
           });
         } else {
           setState(() {
             img = Image(
-              image: AssetImage('assets/Weather/Sunny.jpg'),
+              image: AssetImage('assets/Weather/Sunny.png'),
             );
+            color = Colors.orange;
           });
         }
         setState(() {
           tempo = temp.toString();
-          print(tempMin);
-          print(tempMax);
           tempMino = tempMin.toString();
           tempMaxo = tempMax.toString();
+          condition = conditions;
         });
       }
     } else {

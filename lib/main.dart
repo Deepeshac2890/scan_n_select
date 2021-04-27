@@ -4,7 +4,6 @@ import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
 import 'package:scan_n_select/Screens/LoginScreen.dart';
 import 'package:scan_n_select/Screens/RegistrationScreen.dart';
 import 'package:scan_n_select/Screens/SuggestorInfoCollector.dart';
-import 'package:scan_n_select/Screens/WeatherScreen.dart';
 import 'package:scan_n_select/Screens/WelcomeScreen.dart';
 
 void main() {
@@ -18,7 +17,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData.light(),
       routes: {
-        WeatherScreen.id: (context) => WeatherScreen(),
         WelcomeScreen.id: (context) => WelcomeScreen(),
         GeneratorInfoCollector.id: (context) => GeneratorInfoCollector(),
         RegistrationScreen.id: (context) => RegistrationScreen(),

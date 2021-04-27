@@ -31,6 +31,8 @@ dependencies:
   flutter_google_places: ^0.2.8
   network_image_to_byte: ^0.0.1
   geocoder: ^0.2.1
+  google_maps_flutter: ^0.5.27
+  flutter_swiper: ^1.1.6
 
 dev_dependencies:
   flutter_test:

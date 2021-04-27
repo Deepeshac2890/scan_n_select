@@ -173,7 +173,7 @@ class _GeneratorState extends State<Generator> {
           .document(loggedInUser.uid)
           .collection('Items')
           .getDocuments();
-      var docsSnap = await docs.documents;
+      var docsSnap = docs.documents;
       for (var doc in docsSnap) {
         String qrLabel = await doc.data['Data'];
         final image = pw.MemoryImage(
@@ -239,7 +239,7 @@ class _GeneratorState extends State<Generator> {
             .onComplete;
         url = await dataUp.ref.getDownloadURL();
       }
-      var snap = await fs
+      var snap = fs
           .collection('Wardrobe')
           .document(loggedInUser.uid)
           .collection('Items');
@@ -267,7 +267,6 @@ class _GeneratorState extends State<Generator> {
 
   void currentUser() async {
     loggedInUser = await fa.currentUser();
-    var email = loggedInUser.email;
   }
 
   void printQR() async {

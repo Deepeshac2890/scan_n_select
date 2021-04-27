@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scan_n_select/Screens/Dashboard.dart';
 import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
+import 'package:scan_n_select/Screens/MapInfo.dart';
 import 'package:scan_n_select/Screens/SuggestorInfoCollector.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
 import 'package:scan_n_select/Screens/WelcomeScreen.dart';
@@ -39,8 +40,16 @@ class NavDrawer extends StatelessWidget {
             leading: Icon(Icons.wb_cloudy),
             title: Text('Weather'),
             onTap: () {
-              // TODO: Merge Clima Weather App here
-              Navigator.pushNamed(context, WeatherScreen.id);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return WeatherScreen(null);
+              }));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.map),
+            title: Text('Maps'),
+            onTap: () {
+              Navigator.pushNamed(context, MapInfo.id);
             },
           ),
           Divider(),

@@ -81,6 +81,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
         ),
         title: Text('Cloth Description'),
         actions: [
+          // ignore: deprecated_member_use
           FlatButton(
               onPressed: () {
                 fa.signOut();
@@ -266,7 +267,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
       imgFile = image;
       img = Image.file(image);
     });
-    await updatePaletteGenerator();
+    updatePaletteGenerator();
   }
 
   _imgFromGallery() async {
@@ -276,7 +277,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
       imgFile = image;
       img = Image.file(image);
     });
-    await updatePaletteGenerator();
+    updatePaletteGenerator();
   }
 
   DropdownButton<String> getAndroidPicker(int level) {

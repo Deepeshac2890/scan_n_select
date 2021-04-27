@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scan_n_select/Components/NavigationDrawer.dart';
 import 'package:scan_n_select/Constants.dart';
+import 'package:scan_n_select/Screens/CityInfo.dart';
 
 class Dashboard extends StatefulWidget {
   static String id = 'Dashboard_Screen';
@@ -14,29 +16,22 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       drawer: NavDrawer(),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        backgroundColor: Colors.blueAccent,
         // ignore: deprecated_member_use
-        actions: [
-          TextButton(
-            child: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          Flexible(
-            child: Container(
-              padding: EdgeInsets.only(right: 5),
-              child: TextField(
-                onChanged: (value) {
-                  // Add search functionality.
-                },
-                decoration:
-                    kTextFieldDecoration.copyWith(hintText: 'Search Away!'),
-              ),
+        title: GestureDetector(
+          onHorizontalDragDown: (values) {
+            SystemChannels.textInput.invokeMethod('TextInput.hide');
+          },
+          child: Container(
+            padding: EdgeInsets.only(right: 5),
+            child: TextField(
+              onChanged: (value) {
+                // Add search functionality.
+              },
+              decoration: kSearchFieldDecoration,
             ),
           ),
-        ],
+        ),
       ),
       body: Container(
         color: Colors.black38,
@@ -67,7 +62,16 @@ class DashboardCity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return CityInfo(cityName);
+            },
+          ),
+        );
+      },
       child: Container(
         margin: EdgeInsets.all(10),
         width: double.infinity,
