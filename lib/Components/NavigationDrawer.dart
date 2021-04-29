@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scan_n_select/Screens/Dashboard.dart';
 import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
 import 'package:scan_n_select/Screens/MapInfo.dart';
+import 'package:scan_n_select/Screens/SavedTickets.dart';
 import 'package:scan_n_select/Screens/SuggestorInfoCollector.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
 import 'package:scan_n_select/Screens/WelcomeScreen.dart';
@@ -42,6 +43,15 @@ class NavDrawer extends StatelessWidget {
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return WeatherScreen(null);
+              }));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.flight_land),
+            title: Text('Saved Tickets'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return SavedTickets();
               }));
             },
           ),

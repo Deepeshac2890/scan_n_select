@@ -4,6 +4,7 @@ import 'package:scan_n_select/Components/NavigationDrawer.dart';
 import 'package:scan_n_select/Constants.dart';
 import 'package:scan_n_select/Screens/CityInfo.dart';
 
+// TODO: Add Search Functionality
 class Dashboard extends StatefulWidget {
   static String id = 'Dashboard_Screen';
   @override
