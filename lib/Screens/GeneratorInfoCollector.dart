@@ -73,6 +73,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        // ignore: deprecated_member_use
         leading: FlatButton(
           child: Icon(Icons.arrow_back),
           onPressed: () {
@@ -202,6 +203,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
             HeightSpacer(
               val: 5,
             ),
+            // ignore: deprecated_member_use
             FlatButton(
               minWidth: MediaQuery.of(context).size.width * 0.85,
               color: Colors.blueAccent,
@@ -261,6 +263,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
   }
 
   _imgFromCamera() async {
+    // ignore: deprecated_member_use
     File image = await ImagePicker.pickImage(
         source: ImageSource.camera, imageQuality: 50);
     setState(() {
@@ -271,6 +274,7 @@ class _GeneratorInfoCollectorState extends State<GeneratorInfoCollector> {
   }
 
   _imgFromGallery() async {
+    // ignore: deprecated_member_use
     File image = await ImagePicker.pickImage(
         source: ImageSource.gallery, imageQuality: 50);
     setState(() {

@@ -1,17 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' show cos, sqrt, asin;
 
+import 'package:audioplayers/audio_cache.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
+import 'package:location/location.dart' as lc;
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Keys.dart';
 
-// TODO: Add Information for PTV when clicked on marker
+// TODO: Add Information for PTV when clicked on marker.
+// TODO: Create an local Notification for location reach.
 
 String cityName = '';
 
@@ -27,6 +34,7 @@ class MapInfo extends StatefulWidget {
 }
 
 class _MapInfoState extends State<MapInfo> {
+  final homeScaffoldKey = GlobalKey<ScaffoldState>();
   Completer<GoogleMapController> controllers = Completer();
   static LatLng center = LatLng(71.521563, 30.677433);
   final Set<Marker> markers = {};
@@ -44,10 +52,12 @@ class _MapInfoState extends State<MapInfo> {
   int dirType = 0;
   String selectedDestination = '';
   LatLng sourceLatLng;
+  StreamSubscription<lc.LocationData> lco;
+  final player = AudioCache();
 
   @override
   void initState() {
-    getCityLati();
+    getCityLatitude();
     super.initState();
   }
 
@@ -55,6 +65,7 @@ class _MapInfoState extends State<MapInfo> {
   Widget build(BuildContext context) {
     ctx = context;
     return Scaffold(
+      key: homeScaffoldKey,
       appBar: AppBar(
         title: Center(child: Text(cityName)),
       ),
@@ -109,6 +120,10 @@ class _MapInfoState extends State<MapInfo> {
                   ),
                   button(fromCurrent, Icons.directions_outlined,
                       'Direction from Current Location'),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  button(reminder, Icons.alarm, 'Remind Me at Location'),
                 ],
               ),
             ),
@@ -129,7 +144,7 @@ class _MapInfoState extends State<MapInfo> {
     }
   }
 
-  DropdownButton<String> getAndroidPicker() {
+  DropdownButton<String> getAndroidPickerSource() {
     return DropdownButton<String>(
       value: selectedSource,
       onChanged: (value) {
@@ -143,7 +158,7 @@ class _MapInfoState extends State<MapInfo> {
     );
   }
 
-  CupertinoPicker getIOSPicker() {
+  CupertinoPicker getIOSPickerSource() {
     return CupertinoPicker(
       itemExtent: 32.0,
       onSelectedItemChanged: (value) {
@@ -155,14 +170,14 @@ class _MapInfoState extends State<MapInfo> {
     );
   }
 
-  Widget getPicker() {
+  Widget getPickerSource() {
     if (Platform.isIOS)
-      return getIOSPicker();
+      return getIOSPickerSource();
     else
-      return getAndroidPicker();
+      return getAndroidPickerSource();
   }
 
-  DropdownButton<String> getAndroidPicker1() {
+  DropdownButton<String> getAndroidPickerDestination() {
     return DropdownButton<String>(
       value: selectedDestination,
       onChanged: (value) {
@@ -176,7 +191,7 @@ class _MapInfoState extends State<MapInfo> {
     );
   }
 
-  CupertinoPicker getIOSPicker1() {
+  CupertinoPicker getIOSPickerDestination() {
     return CupertinoPicker(
       itemExtent: 32.0,
       onSelectedItemChanged: (value) {
@@ -188,11 +203,11 @@ class _MapInfoState extends State<MapInfo> {
     );
   }
 
-  Widget getPicker1() {
+  Widget getPickerDestination() {
     if (Platform.isIOS)
-      return getIOSPicker1();
+      return getIOSPickerDestination();
     else
-      return getAndroidPicker1();
+      return getAndroidPickerDestination();
   }
 
   Widget button(Function fn, IconData icon, String message) {
@@ -209,7 +224,7 @@ class _MapInfoState extends State<MapInfo> {
 
   _onMapCreated(GoogleMapController controller) async {
     // This is done to set the view to Destination City
-    getCityLati();
+    getCityLatitude();
     await controller.moveCamera(CameraUpdate.newLatLng(center));
     controllers.complete(controller);
     cityViewer();
@@ -240,23 +255,12 @@ class _MapInfoState extends State<MapInfo> {
     lastMapPosition = position.target;
   }
 
-  void fromCurrent() async {
-    if (markersVisible) {
-      dragDownRegister();
-      dirType = 0;
-      await selectSource();
-    } else {
-      setMarkers();
-      await selectSource();
-    }
-  }
-
   Future<void> selectSource() async {
     if (dirType == 0) {
       Alert(
           context: ctx,
           title: "Select Source",
-          content: getPicker(),
+          content: getPickerSource(),
           buttons: [
             DialogButton(
               onPressed: () async {
@@ -277,7 +281,7 @@ class _MapInfoState extends State<MapInfo> {
       Alert(
           context: ctx,
           title: "Select Source",
-          content: getPicker(),
+          content: getPickerSource(),
           buttons: [
             DialogButton(
               onPressed: () async {
@@ -298,11 +302,11 @@ class _MapInfoState extends State<MapInfo> {
     }
   }
 
-  Future<void> selectDestination() {
+  Future<void> selectDestination() async {
     Alert(
         context: ctx,
         title: "Select Destination",
-        content: getPicker1(),
+        content: getPickerDestination(),
         buttons: [
           DialogButton(
             onPressed: () async {
@@ -337,7 +341,6 @@ class _MapInfoState extends State<MapInfo> {
         }
       });
       place = [];
-      int l = ptv.length;
       while (ptv.isNotEmpty) {
         String temp = '';
         if (ptv.indexOf(',') != -1) {
@@ -355,6 +358,17 @@ class _MapInfoState extends State<MapInfo> {
       selectedSource = place[0];
       selectedDestination = place[0];
       markersVisible = true;
+    }
+  }
+
+  void fromCurrent() async {
+    if (markersVisible) {
+      dragDownRegister();
+      dirType = 0;
+      await selectSource();
+    } else {
+      setMarkers();
+      await selectSource();
     }
   }
 
@@ -378,6 +392,60 @@ class _MapInfoState extends State<MapInfo> {
         .moveCamera((CameraUpdate.newLatLng(await getCurrentLocation())));
   }
 
+  void reminder() async {
+    await _handlePressButton();
+  }
+
+  Future<void> _handlePressButton() async {
+    // show input autocomplete with selected mode
+    // then get the Prediction selected
+    Prediction p = await PlacesAutocomplete.show(
+      context: context,
+      apiKey: kGoogleApiKey,
+      mode: Mode.overlay,
+      language: "en",
+    );
+
+    usePrediction(p, homeScaffoldKey.currentState);
+  }
+
+  Future<Null> usePrediction(Prediction p, ScaffoldState scaffold) async {
+    if (p != null) {
+      // get detail (lat/lng)
+      GoogleMapsPlaces _places = GoogleMapsPlaces(
+        apiKey: kGoogleApiKey,
+        apiHeaders: await GoogleApiHeaders().getHeaders(),
+      );
+      PlacesDetailsResponse detail =
+          await _places.getDetailsByPlaceId(p.placeId);
+      final late = detail.result.geometry.location.lat;
+      final lng = detail.result.geometry.location.lng;
+      cityName = p.description.substring(0, p.description.indexOf(','));
+      // Start Stream which will read the Location in Background. This concept of stream has been
+      // in Kafka earlier in Java.
+      lco = lc.Location.instance.onLocationChanged
+          .listen((currentLocation) async {
+        if (calculateDistance(currentLocation.latitude,
+                currentLocation.longitude, late, lng) <
+            1) {
+          // Here this will work in background but not sure needs testing
+          // It will work in case if app is open and if it is opened after sometime.
+          player.play('note1.wav');
+          await lco.cancel();
+        }
+      });
+    }
+  }
+
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
   Future<LatLng> getCurrentLocation() async {
     Position position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -392,7 +460,7 @@ class _MapInfoState extends State<MapInfo> {
     });
   }
 
-  void getCityLati() async {
+  void getCityLatitude() async {
     List<Placemark> placemark =
         await Geolocator().placemarkFromAddress(cityName);
     center =
@@ -404,7 +472,6 @@ class _MapInfoState extends State<MapInfo> {
         "https://maps.googleapis.com/maps/api/directions/json?origin=${l1.latitude},${l1.longitude}&destination=${l2.latitude},${l2.longitude}&key=$kGoogleApiKey";
     http.Response response = await http.get(url);
     Map values = jsonDecode(response.body);
-    print("====================>>>>>>>>${values}");
 
     return values["routes"][0]["overview_polyline"]["points"];
   }
@@ -436,6 +503,7 @@ class _MapInfoState extends State<MapInfo> {
 
   List _decodePoly(String poly) {
     var list = poly.codeUnits;
+    // ignore: deprecated_member_use
     var lList = new List();
     int index = 0;
     int len = poly.length;

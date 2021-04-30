@@ -15,12 +15,13 @@ class NavDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
+            child: Image.asset('assets/logo.gif'),
             decoration: BoxDecoration(
               color: Colors.green,
-              image: DecorationImage(
-                fit: BoxFit.fill,
-                image: AssetImage('assets/logo.gif'),
-              ),
+              // image: DecorationImage(
+              //   fit: BoxFit.fill,
+              //   image: AssetImage('assets/logo.gif'),
+              // ),
             ),
           ),
           ListTile(

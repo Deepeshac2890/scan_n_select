@@ -106,6 +106,7 @@ class _SuggestorInfoCollectorState extends State<SuggestorInfoCollector> {
       key: homeScaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        // ignore: deprecated_member_use
         leading: FlatButton(
           child: Icon(Icons.arrow_back),
           onPressed: () {

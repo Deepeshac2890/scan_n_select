@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scan_n_select/Components/NavigationDrawer.dart';
 
 class SavedTickets extends StatefulWidget {
   @override
@@ -8,6 +9,16 @@ class SavedTickets extends StatefulWidget {
 class _SavedTicketsState extends State<SavedTickets> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Tickets"),
+      ),
+      drawer: NavDrawer(),
+      body: Column(
+        children: [
+          NavigationToolbar(),
+        ],
+      ),
+    );
   }
 }

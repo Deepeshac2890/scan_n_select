@@ -6,7 +6,8 @@ import 'package:scan_n_select/Screens/RegistrationScreen.dart';
 import 'package:scan_n_select/Screens/SuggestorInfoCollector.dart';
 import 'package:scan_n_select/Screens/WelcomeScreen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 

@@ -170,7 +170,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   String getNameOfDay(int wd) {
-    print(wd);
     switch (wd) {
       case 1:
         return 'Monday';
@@ -192,6 +191,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
         break;
       case 7:
         return 'Sunday';
+        break;
+      default:
+        return 'Monday';
         break;
     }
   }

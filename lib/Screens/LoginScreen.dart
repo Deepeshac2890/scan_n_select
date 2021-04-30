@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 8.0,
                   ),
                   GestureDetector(
-                    onHorizontalDragDown: (DragDownDetails) {
+                    onHorizontalDragDown: (dragDownDetails) {
                       SystemChannels.textInput.invokeMethod('TextInput.hide');
                     },
                     child: TextField(
@@ -146,6 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     alignment: Alignment.centerRight,
+                    // ignore: deprecated_member_use
                     child: FlatButton(
                       child: Text('Forgot Password ?'),
                       onPressed: () {
@@ -179,6 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 var email = forgotEmailController.text;
                                 try {
                                   await fa.sendPasswordResetEmail(email: email);
+                                  // ignore: deprecated_member_use
                                   Scaffold.of(innerContext).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -188,6 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   );
                                 } catch (e) {
+                                  // ignore: deprecated_member_use
                                   Scaffold.of(innerContext).showSnackBar(
                                     SnackBar(
                                       content: Text(
