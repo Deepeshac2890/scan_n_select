@@ -1,6 +1,6 @@
-# scan_n_select
+# Travel Buddy
 
-ScanNSelect is an application which helps traveller with their trips by providing them the services that are needed.
+Travel Buddy is an application which helps traveller with their trips by providing them the services that are needed.
 
 ## Features
 1. It provides information about the Travel Destinations.
