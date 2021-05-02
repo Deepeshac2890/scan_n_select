@@ -1,16 +1,13 @@
 # scan_n_select
 
-ScanNSelect is an application which will help you store your wardrobe digitally and suggest you clothes for travel according to weather of Destination.
+ScanNSelect is an application which helps traveller with their trips by providing them the services that are needed.
 
-## Getting Started
+## Features
+1. It provides information about the Travel Destinations.
+2. It provides user information like weather details and maps with navigation.
+3. While travelling sometime we need to be notified when we reach a certain place which is in our way. It allows user to set the place and notifies them when it is reached.
+4. It helps travellers in packing by providing them a QR Based Item suggestor and validator. It suggest the users clothes based on weather for the trip duration and destination.
+5. Users can store their travel tickets in one place and view them whenever they need it.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features To Come
+1. Allow User to save the trips and link it to saving tickets and suggest clothes and give the user PDF.
