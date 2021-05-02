@@ -35,6 +35,10 @@ dependencies:
   flutter_swiper: ^1.1.6
   location: ^3.0.0
   audioplayers: ^0.13.0
+  file_picker: ^1.7.0
+  advance_pdf_viewer: ^1.2.2
+  widget_circular_animator: ^0.1.5+1
+  flutter_image_compress: ^0.7.0
 
 dev_dependencies:
   flutter_test:

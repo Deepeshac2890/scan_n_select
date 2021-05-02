@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scan_n_select/Screens/Dashboard.dart';
 import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
-import 'package:scan_n_select/Screens/MapInfo.dart';
+import 'package:scan_n_select/Screens/MyProfile.dart';
 import 'package:scan_n_select/Screens/SavedTickets.dart';
 import 'package:scan_n_select/Screens/SuggestorInfoCollector.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
@@ -17,11 +17,7 @@ class NavDrawer extends StatelessWidget {
           DrawerHeader(
             child: Image.asset('assets/logo.gif'),
             decoration: BoxDecoration(
-              color: Colors.green,
-              // image: DecorationImage(
-              //   fit: BoxFit.fill,
-              //   image: AssetImage('assets/logo.gif'),
-              // ),
+              color: Color.fromRGBO(239, 231, 187, 1),
             ),
           ),
           ListTile(
@@ -36,6 +32,9 @@ class NavDrawer extends StatelessWidget {
             title: Text('Profile'),
             onTap: () {
               // TODO: Take the Profile created for BuyCycle and use it here with improvements
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Profile();
+              }));
             },
           ),
           ListTile(
@@ -54,13 +53,6 @@ class NavDrawer extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return SavedTickets();
               }));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.map),
-            title: Text('Maps'),
-            onTap: () {
-              Navigator.pushNamed(context, MapInfo.id);
             },
           ),
           Divider(),

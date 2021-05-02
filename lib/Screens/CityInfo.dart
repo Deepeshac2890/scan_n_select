@@ -8,6 +8,7 @@ import 'package:scan_n_select/Screens/MapInfo.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
 
 // TODO: Add the images in firebase storage for each PTV of city and display it here.
+// TODO: Use Travel API here to get information instead of the Database.
 
 String cityName;
 
