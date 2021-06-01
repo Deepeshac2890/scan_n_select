@@ -1,21 +1,21 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math' show cos, sqrt, asin;
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:http/http.dart' as http;
 import 'package:location/location.dart' as lc;
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Keys.dart';
+import 'package:scan_n_select/Services/location_service.dart';
+import 'package:scan_n_select/Services/notification_service.dart';
 
 // TODO: Add Information for PTV when clicked on marker.
 // TODO: Create an local Notification for location reach.
@@ -34,6 +34,7 @@ class MapInfo extends StatefulWidget {
 }
 
 class _MapInfoState extends State<MapInfo> {
+  FlutterLocalNotificationsPlugin ftrNotification;
   final homeScaffoldKey = GlobalKey<ScaffoldState>();
   Completer<GoogleMapController> controllers = Completer();
   static LatLng center = LatLng(71.521563, 30.677433);
@@ -54,11 +55,51 @@ class _MapInfoState extends State<MapInfo> {
   LatLng sourceLatLng;
   StreamSubscription<lc.LocationData> lco;
   final player = AudioCache();
+  NotificationService ns = NotificationService();
+  LocationService locationService = LocationService();
 
   @override
   void initState() {
-    getCityLatitude();
+    latLngInit();
+    ftrNotification = FlutterLocalNotificationsPlugin();
+    NotificationService ns = NotificationService();
+    ftrNotification.initialize(ns.init(),
+        onSelectNotification: cancelNotification);
     super.initState();
+  }
+
+  void latLngInit() async {
+    center = await locationService.getCityLatLng(cityName);
+  }
+
+  Future getNotification(String locationName) async {
+    try {
+      await ftrNotification.show(
+          0,
+          'Location Reminder : $locationName',
+          'Location Reminder has been set(Tap Here to Cancel)',
+          ns.getNotification());
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<dynamic> cancelNotification(String payload) async {
+    await lco.cancel();
+    // ignore: unnecessary_statements, deprecated_member_use
+    homeScaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text('Reminder Cancelled !!'),
+      ),
+    );
+  }
+
+  @override
+  void dispose() async {
+    // To cancel the subscription if this page is closed.
+    // May have to remove this to support different page notification allow.
+    await lco.cancel();
+    super.dispose();
   }
 
   @override
@@ -224,7 +265,7 @@ class _MapInfoState extends State<MapInfo> {
 
   _onMapCreated(GoogleMapController controller) async {
     // This is done to set the view to Destination City
-    getCityLatitude();
+    center = await locationService.getCityLatLng(cityName);
     await controller.moveCamera(CameraUpdate.newLatLng(center));
     controllers.complete(controller);
     cityViewer();
@@ -268,7 +309,7 @@ class _MapInfoState extends State<MapInfo> {
                     .placemarkFromAddress(selectedSource + ',' + cityName);
                 LatLng mSet = LatLng(placemark[0].position.latitude,
                     placemark[0].position.longitude);
-                sendRequest(await getCurrentLocation(), mSet);
+                sendRequest(await locationService.getCurrentLocation(), mSet);
                 Navigator.pop(ctx);
               },
               child: Text(
@@ -388,8 +429,8 @@ class _MapInfoState extends State<MapInfo> {
 
   void myLocation() async {
     var control = await controllers.future;
-    await control
-        .moveCamera((CameraUpdate.newLatLng(await getCurrentLocation())));
+    await control.moveCamera(
+        (CameraUpdate.newLatLng(await locationService.getCurrentLocation())));
   }
 
   void reminder() async {
@@ -405,8 +446,8 @@ class _MapInfoState extends State<MapInfo> {
       mode: Mode.overlay,
       language: "en",
     );
-
     usePrediction(p, homeScaffoldKey.currentState);
+    getNotification(p.description.substring(0, p.description.indexOf(',')));
   }
 
   Future<Null> usePrediction(Prediction p, ScaffoldState scaffold) async {
@@ -420,12 +461,12 @@ class _MapInfoState extends State<MapInfo> {
           await _places.getDetailsByPlaceId(p.placeId);
       final late = detail.result.geometry.location.lat;
       final lng = detail.result.geometry.location.lng;
-      cityName = p.description.substring(0, p.description.indexOf(','));
+
       // Start Stream which will read the Location in Background. This concept of stream has been
       // in Kafka earlier in Java.
       lco = lc.Location.instance.onLocationChanged
           .listen((currentLocation) async {
-        if (calculateDistance(currentLocation.latitude,
+        if (locationService.calculateDistance(currentLocation.latitude,
                 currentLocation.longitude, late, lng) <
             1) {
           // Here this will work in background but not sure needs testing
@@ -437,22 +478,6 @@ class _MapInfoState extends State<MapInfo> {
     }
   }
 
-  double calculateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
-  }
-
-  Future<LatLng> getCurrentLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    LatLng cp = LatLng(position.latitude, position.longitude);
-    return cp;
-  }
-
   _onMapTypeButtonPressed() {
     setState(() {
       currentMapType =
@@ -460,73 +485,19 @@ class _MapInfoState extends State<MapInfo> {
     });
   }
 
-  void getCityLatitude() async {
-    List<Placemark> placemark =
-        await Geolocator().placemarkFromAddress(cityName);
-    center =
-        LatLng(placemark[0].position.latitude, placemark[0].position.longitude);
-  }
-
-  Future<String> getRouteCoordinates(LatLng l1, LatLng l2) async {
-    String url =
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${l1.latitude},${l1.longitude}&destination=${l2.latitude},${l2.longitude}&key=$kGoogleApiKey";
-    http.Response response = await http.get(url);
-    Map values = jsonDecode(response.body);
-
-    return values["routes"][0]["overview_polyline"]["points"];
-  }
-
   void sendRequest(LatLng source, LatLng destination) async {
-    String route = await getRouteCoordinates(source, destination);
+    String route =
+        await locationService.getRouteCoordinates(source, destination);
     createRoute(route);
     setState(() {});
-    //_addMarker(destination, "KTHM Collage");
   }
 
   void createRoute(String encondedPoly) {
     _polyLines.add(Polyline(
         polylineId: PolylineId(center.toString()),
         width: 4,
-        points: _convertToLatLng(_decodePoly(encondedPoly)),
+        points: locationService
+            .convertToLatLng(locationService.decodePoly(encondedPoly)),
         color: Colors.red));
-  }
-
-  List<LatLng> _convertToLatLng(List points) {
-    List<LatLng> result = <LatLng>[];
-    for (int i = 0; i < points.length; i++) {
-      if (i % 2 != 0) {
-        result.add(LatLng(points[i - 1], points[i]));
-      }
-    }
-    return result;
-  }
-
-  List _decodePoly(String poly) {
-    var list = poly.codeUnits;
-    // ignore: deprecated_member_use
-    var lList = new List();
-    int index = 0;
-    int len = poly.length;
-    int c = 0;
-    do {
-      var shift = 0;
-      int result = 0;
-
-      do {
-        c = list[index] - 63;
-        result |= (c & 0x1F) << (shift * 5);
-        index++;
-        shift++;
-      } while (c >= 32);
-      if (result & 1 == 1) {
-        result = ~result;
-      }
-      var result1 = (result >> 1) * 0.00001;
-      lList.add(result1);
-    } while (index < len);
-
-    for (var i = 2; i < lList.length; i++) lList[i] += lList[i - 2];
-
-    return lList;
   }
 }

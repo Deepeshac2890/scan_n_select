@@ -6,11 +6,14 @@ List<List<String>> ls = [];
 List<Widget> listToShow = [];
 List<String> itemsChecked = [];
 
+// TODO: Add List of Item and checklist when the scan is complete
+
 class Scanner extends StatefulWidget {
   static String id = 'Scanner_Screen';
   Scanner(List<List<String>> lsi) {
     ls = lsi;
   }
+
   @override
   _ScannerState createState() => _ScannerState();
 }
@@ -69,84 +72,12 @@ class _ScannerState extends State<Scanner> {
               child: ListView(
                 children: listToShow,
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
-
-  // Widget getWidget() {
-  //   if (qrResult == null) {
-  //     return Expanded(
-  //       child: GestureDetector(
-  //         onTap: () {
-  //           scan();
-  //         },
-  //         child: Container(
-  //             color: Color(0xff2aaae3),
-  //             child: Image(image: AssetImage('assets/scanQR.jpg'))),
-  //       ),
-  //     );
-  //   } else if (qrResult.contains('null')) {
-  //     return Expanded(
-  //       child: GestureDetector(
-  //         onTap: () {
-  //           scan();
-  //         },
-  //         child: Container(
-  //             color: Color(0xff2aaae3),
-  //             child: Image(image: AssetImage('assets/scanQR.jpg'))),
-  //       ),
-  //     );
-  //   } else {
-  //     print(qrResult + 'On Success');
-  //     return Container(
-  //       margin: EdgeInsets.all(10),
-  //       padding: EdgeInsets.all(10),
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Image(image: AssetImage('assets/default.png')),
-  //           SizedBox(
-  //             height: 10,
-  //           ),
-  //           Text(
-  //             'Item Type -> ' + itemType,
-  //             style: TextStyle(
-  //               fontWeight: FontWeight.bold,
-  //               fontSize: 20,
-  //             ),
-  //           ),
-  //           Text(
-  //             'Color -> ' + color,
-  //             style: TextStyle(
-  //               fontWeight: FontWeight.bold,
-  //               fontSize: 20,
-  //             ),
-  //           ),
-  //           Text(
-  //             'Material Type -> ' + materialType,
-  //             style: TextStyle(
-  //               fontWeight: FontWeight.bold,
-  //               fontSize: 20,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
-  // }
-
-  // void getData(String qrData) {
-  //   itemType = qrData.substring(0, qrData.indexOf('_'));
-  //   String rest = qrData.substring(qrData.indexOf('_') + 1, qrData.length);
-  //   color = rest.substring(0, rest.indexOf('_'));
-  //   rest = rest.substring(rest.indexOf('_') + 1, rest.length);
-  //   materialType = rest;
-  //   setState(() {});
-  // }
 
   void createList() {
     listToShow = [];

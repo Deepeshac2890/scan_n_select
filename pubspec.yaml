@@ -39,6 +39,10 @@ dependencies:
   advance_pdf_viewer: ^1.2.2
   widget_circular_animator: ^0.1.5+1
   flutter_image_compress: ^0.7.0
+  intl: ^0.16.1
+  http: ^0.12.2
+  webview_flutter: 1.0.0
+  flutter_local_notifications: 4.0.0
 
 dev_dependencies:
   flutter_test:

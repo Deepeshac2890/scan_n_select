@@ -59,3 +59,5 @@ const kSearchFieldDecoration = InputDecoration(
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
+const newsApiStart = 'https://newsapi.org/v2/everything?q=';
+const newsApiMiddle = '&sortBy=popularity&apiKey=';

@@ -31,7 +31,6 @@ class NavDrawer extends StatelessWidget {
             leading: Icon(Icons.person),
             title: Text('Profile'),
             onTap: () {
-              // TODO: Take the Profile created for BuyCycle and use it here with improvements
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return Profile();
               }));

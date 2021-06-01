@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:scan_n_select/Components/NavigationDrawer.dart';
 import 'package:scan_n_select/Screens/MapInfo.dart';
+import 'package:scan_n_select/Screens/NewsPaper.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
 
 // TODO: Add the images in firebase storage for each PTV of city and display it here.
@@ -104,6 +105,7 @@ class _CityInfoState extends State<CityInfo> {
                       fontSize: 30),
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     // ignore: deprecated_member_use
                     FlatButton(
@@ -117,15 +119,26 @@ class _CityInfoState extends State<CityInfo> {
                     ),
                     // ignore: deprecated_member_use
                     FlatButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return WeatherScreen(cityName);
-                          }));
-                        },
-                        child: Icon(Icons.wb_cloudy))
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return WeatherScreen(cityName);
+                        }));
+                      },
+                      child: Icon(Icons.wb_cloudy),
+                    ),
+                    // ignore: deprecated_member_use
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return NewsPaper(cityName);
+                        }));
+                      },
+                      child: Icon(Icons.article),
+                    ),
                   ],
-                )
+                ),
               ],
             ),
             Container(
@@ -158,6 +171,7 @@ class _CityInfoState extends State<CityInfo> {
         //     fit: BoxFit.fitHeight,
         //   );
         // } else {
+        // TODO: Have to automate it here just for trial
         return new Image.asset('assets/Background/Delhi.jpg');
       },
       itemCount: 5,

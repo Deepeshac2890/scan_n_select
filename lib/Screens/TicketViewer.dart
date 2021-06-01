@@ -18,9 +18,8 @@ class _TicketViewerState extends State<TicketViewer> {
   bool isLoading = true;
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     loadDocument();
+    super.initState();
   }
 
   void loadDocument() async {

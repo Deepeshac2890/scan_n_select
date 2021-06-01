@@ -5,6 +5,8 @@ import 'package:scan_n_select/Constants.dart';
 import 'package:scan_n_select/Screens/CityInfo.dart';
 
 // TODO: Add Search Functionality
+// TODO: Add Trip Add Page where users can add the trip link it with Ticket Save and Item Suggester.
+
 class Dashboard extends StatefulWidget {
   static String id = 'Dashboard_Screen';
   @override

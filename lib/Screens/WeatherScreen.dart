@@ -1,14 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geocoder/geocoder.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:http/http.dart' as http;
-import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Keys.dart';
+import 'package:scan_n_select/Services/location_service.dart';
+import 'package:scan_n_select/Services/weather_service.dart';
 
 class WeatherScreen extends StatefulWidget {
   static String id = 'Weather_Screen';
@@ -21,7 +18,6 @@ class WeatherScreen extends StatefulWidget {
 
 // TODO: Change the gifs with something better
 final homeScaffoldKey = GlobalKey<ScaffoldState>();
-Position position;
 String lat;
 String long;
 String tempo = "";
@@ -30,6 +26,8 @@ String tempMaxo = "";
 String cityName = "";
 String condition = "";
 String city;
+LocationService locationService = LocationService();
+WeatherService ws = WeatherService();
 var color = Colors.deepPurple;
 Image img = Image(
   image: AssetImage('assets/Weather/Cloudy.png'),
@@ -169,35 +167,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
     );
   }
 
-  String getNameOfDay(int wd) {
-    switch (wd) {
-      case 1:
-        return 'Monday';
-        break;
-      case 2:
-        return 'Tuesday';
-        break;
-      case 3:
-        return 'Wednesday';
-        break;
-      case 4:
-        return 'Thursday';
-        break;
-      case 5:
-        return 'Friday';
-        break;
-      case 6:
-        return 'Saturday';
-        break;
-      case 7:
-        return 'Sunday';
-        break;
-      default:
-        return 'Monday';
-        break;
-    }
-  }
-
   Future<void> _handlePressButton() async {
     // show input autocomplete with selected mode
     // then get the Prediction selected
@@ -213,11 +182,10 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   Future<void> getLocation() async {
     try {
-      position = await Geolocator()
-          .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
-      lat = position.latitude.toString();
-      long = position.longitude.toString();
-      final coordinates = Coordinates(position.latitude, position.longitude);
+      var ps = await locationService.getCurrentLocation();
+      lat = ps.latitude.toString();
+      long = ps.longitude.toString();
+      final coordinates = Coordinates(ps.latitude, ps.longitude);
       var addresses =
           await Geocoder.local.findAddressesFromCoordinates(coordinates);
       var first = addresses[3];
@@ -231,9 +199,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   void getCityWeather() async {
-    List<Placemark> placemark = await Geolocator().placemarkFromAddress(city);
-    lat = placemark[0].position.latitude.toString();
-    long = placemark[0].position.longitude.toString();
+    var ps = await locationService.getCityLatLng(city);
+    lat = ps.latitude.toString();
+    long = ps.longitude.toString();
     setState(() {
       cityName = city;
     });
@@ -261,75 +229,62 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   Future<void> getWeather() async {
-    String date = DateTime.now().toString().split(' ')[0];
-    print(lat);
-    print(long);
-    String url =
-        'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/$lat%2C$long/$date?unitGroup=metric&key=$weatherKey';
-    http.Response repo = await http.get(url);
-    var decodedData = jsonDecode(repo.body);
-    if (repo.statusCode == 200) {
-      // Everything went well
-      if (decodedData != null) {
-        var tempMax = decodedData['days'][0]['tempmax'];
-        var tempMin = decodedData['days'][0]['tempmin'];
-        var temp = decodedData['days'][0]['temp'];
-        String conditions = decodedData['days'][0]['conditions'];
-        String icon = decodedData['days'][0]['icon'];
-        print(icon);
-        if (icon.toLowerCase().contains('cloud')) {
-          setState(() {
-            img = Image(
-              image: AssetImage('assets/Weather/Cloudy.png'),
-            );
-            color = Colors.deepPurple;
-          });
-        } else if (icon.toLowerCase().contains('wind')) {
-          setState(() {
-            img = Image(
-              image: AssetImage('assets/Weather/Windy.gif'),
-            );
-            color = Colors.lightBlue;
-          });
-        } else if (icon.toLowerCase().contains('sunny')) {
-          setState(() {
-            img = Image(
-              image: AssetImage('assets/Weather/Sunny.png'),
-            );
-            color = Colors.orange;
-          });
-        } else if (icon.toLowerCase().contains('snow')) {
-          setState(() {
-            img = Image(
-              image: AssetImage('assets/Weather/Snow.png'),
-            );
-            color = Colors.deepOrange;
-          });
-        } else if (icon.toLowerCase().contains('rain')) {
-          setState(() {
-            img = Image(
-              image: AssetImage('assets/Weather/Rainy.png'),
-            );
-            color = Colors.blue;
-          });
-        } else {
-          setState(() {
-            img = Image(
-              image: AssetImage('assets/Weather/Sunny.png'),
-            );
-            color = Colors.orange;
-          });
-        }
+    var decodedData = await ws.getWeather(lat, long);
+    if (decodedData != null) {
+      var tempMax = decodedData['days'][0]['tempmax'];
+      var tempMin = decodedData['days'][0]['tempmin'];
+      var temp = decodedData['days'][0]['temp'];
+      String conditions = decodedData['days'][0]['conditions'];
+      String icon = decodedData['days'][0]['icon'];
+      if (icon.toLowerCase().contains('cloud')) {
         setState(() {
-          tempo = temp.toString();
-          tempMino = tempMin.toString();
-          tempMaxo = tempMax.toString();
-          condition = conditions;
+          img = Image(
+            image: AssetImage('assets/Weather/Cloudy.png'),
+          );
+          color = Colors.deepPurple;
+        });
+      } else if (icon.toLowerCase().contains('wind')) {
+        setState(() {
+          img = Image(
+            image: AssetImage('assets/Weather/Windy.gif'),
+          );
+          color = Colors.lightBlue;
+        });
+      } else if (icon.toLowerCase().contains('sunny')) {
+        setState(() {
+          img = Image(
+            image: AssetImage('assets/Weather/Sunny.png'),
+          );
+          color = Colors.orange;
+        });
+      } else if (icon.toLowerCase().contains('snow')) {
+        setState(() {
+          img = Image(
+            image: AssetImage('assets/Weather/Snow.png'),
+          );
+          color = Colors.deepOrange;
+        });
+      } else if (icon.toLowerCase().contains('rain')) {
+        setState(() {
+          img = Image(
+            image: AssetImage('assets/Weather/Rainy.png'),
+          );
+          color = Colors.blue;
+        });
+      } else {
+        setState(() {
+          img = Image(
+            image: AssetImage('assets/Weather/Sunny.png'),
+          );
+          color = Colors.orange;
         });
       }
-    } else {
-      Alert(context: context, title: 'Error Occurred While Fetching Data')
-          .show();
+      setState(() {
+        tempo = temp.toString();
+        tempMino = tempMin.toString();
+        tempMaxo = tempMax.toString();
+        condition = conditions;
+      });
     }
   }
 }
