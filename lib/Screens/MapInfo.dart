@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart' as lc;
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Keys.dart';
@@ -18,7 +19,6 @@ import 'package:scan_n_select/Services/location_service.dart';
 import 'package:scan_n_select/Services/notification_service.dart';
 
 // TODO: Add Information for PTV when clicked on marker.
-// TODO: Create an local Notification for location reach.
 
 String cityName = '';
 
@@ -78,7 +78,19 @@ class _MapInfoState extends State<MapInfo> {
           0,
           'Location Reminder : $locationName',
           'Location Reminder has been set(Tap Here to Cancel)',
-          ns.getNotification());
+          ns.getNotification(true));
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future reachNotification(String locationName) async {
+    try {
+      await ftrNotification.show(
+          0,
+          'Passed Location : $locationName',
+          'Time :${DateFormat('kk:MM').format(DateTime.now()).toString()}',
+          ns.getNotification(false));
     } catch (e) {
       print(e);
     }
@@ -472,6 +484,8 @@ class _MapInfoState extends State<MapInfo> {
           // Here this will work in background but not sure needs testing
           // It will work in case if app is open and if it is opened after sometime.
           player.play('note1.wav');
+          reachNotification(
+              p.description.substring(0, p.description.indexOf(',')));
           await lco.cancel();
         }
       });

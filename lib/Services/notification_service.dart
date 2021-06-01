@@ -6,10 +6,10 @@ class NotificationService {
     return InitializationSettings(android: androidInitSetting, iOS: null);
   }
 
-  NotificationDetails getNotification() {
+  NotificationDetails getNotification(bool ongoing) {
     var androidNotificationDetails = AndroidNotificationDetails(
         'Channel ID', 'Travel Buddy', 'Application for Travellers',
-        importance: Importance.high, ongoing: true);
+        importance: Importance.high, ongoing: ongoing);
     return NotificationDetails(android: androidNotificationDetails);
   }
 }
