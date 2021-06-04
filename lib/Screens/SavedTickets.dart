@@ -8,11 +8,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mime_type/mime_type.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:scan_n_select/Components/NavigationDrawer.dart';
 import 'package:scan_n_select/Constants.dart';
 import 'package:scan_n_select/Screens/Generator.dart';
 import 'package:scan_n_select/Screens/TicketViewer.dart';
+
+// TODO: Add swipe left to delete function on tickets. Add animation for it also
 
 List<String> mot = ['Bus', 'Train', 'Flight'];
 const List<Choice> choices = [
@@ -35,12 +38,14 @@ class TicketInfo {
   final String destination;
   final String date;
   final String downloadURL;
+  final String ticketType;
 
   TicketInfo(
       {@required this.downloadURL,
       @required this.date,
       @required this.destination,
-      @required this.source});
+      @required this.source,
+      this.ticketType});
 }
 
 class SavedTickets extends StatefulWidget {
@@ -105,6 +110,9 @@ class _SavedTicketsState extends State<SavedTickets> {
               tedSource.clear();
               tedDestination.clear();
               tedDate.clear();
+              source = '';
+              destination = '';
+              date = '';
               await Alert(
                       context: context,
                       title: 'Upload Ticket',
@@ -115,47 +123,56 @@ class _SavedTicketsState extends State<SavedTickets> {
                             if (source != '' &&
                                 destination != '' &&
                                 date != '') {
+                              print(source);
+
                               File file = await FilePicker.getFile();
-                              var upload = await fbs
-                                  .ref()
-                                  .child(currentUserName.email)
-                                  .child('Tickets')
-                                  .child(selectedMode)
-                                  .child(
-                                      source + '_' + destination + '_' + date)
-                                  .putFile(file)
-                                  .onComplete;
-                              if (upload.error == null) {
-                                print(upload.error);
-                                var downloadURL =
-                                    await upload.ref.getDownloadURL();
-                                String dUrl = downloadURL.toString();
-                                print(dUrl);
-                                // Here we save the URL of Ticket on FireStore
-                                try {
-                                  var snap = fs
-                                      .collection('Tickets')
-                                      .document(currentUserName.uid)
-                                      .collection(selectedMode);
-                                  await snap.add({
-                                    'url': dUrl,
-                                    'Source': source,
-                                    'Destination': destination,
-                                    'Date': date
-                                  });
-                                  Navigator.pop(context);
-                                  Alert(
-                                      context: context,
-                                      title: 'Upload Complete',
-                                      buttons: [
-                                        DialogButton(
-                                            child: Text('Okay'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            })
-                                      ]).show();
-                                } catch (e) {
-                                  print(e + 'Error');
+
+                              if (file != null) {
+                                print(file.path);
+                                final mimeType =
+                                    mime(file.path.split('/').last);
+                                print(mimeType);
+                                var upload = await fbs
+                                    .ref()
+                                    .child(currentUserName.email)
+                                    .child('Tickets')
+                                    .child(selectedMode)
+                                    .child(
+                                        source + '_' + destination + '_' + date)
+                                    .putFile(file)
+                                    .onComplete;
+                                if (upload.error == null) {
+                                  print(upload.error);
+                                  var downloadURL =
+                                      await upload.ref.getDownloadURL();
+                                  String dUrl = downloadURL.toString();
+                                  // Here we save the URL of Ticket on FireStore
+                                  try {
+                                    var snap = fs
+                                        .collection('Tickets')
+                                        .document(currentUserName.uid)
+                                        .collection(selectedMode);
+                                    await snap.add({
+                                      'url': dUrl,
+                                      'Source': source,
+                                      'Destination': destination,
+                                      'Date': date,
+                                      'Type': mimeType
+                                    });
+                                    Navigator.pop(context);
+                                    Alert(
+                                        context: context,
+                                        title: 'Upload Complete',
+                                        buttons: [
+                                          DialogButton(
+                                              child: Text('Okay'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              })
+                                        ]).show();
+                                  } catch (e) {
+                                    print(e + 'Error');
+                                  }
                                 }
                               } else {
                                 Navigator.pop(context);
@@ -381,7 +398,7 @@ class _ChoicePageState extends State<ChoicePage> {
             ctx,
             MaterialPageRoute(
               builder: (ctx) {
-                return TicketViewer(ti.downloadURL);
+                return TicketViewer(ti.downloadURL, ti.ticketType);
               },
             ),
           );
@@ -459,12 +476,12 @@ class _ChoicePageState extends State<ChoicePage> {
     snap.documents.forEach((dSnap) async {
       i++;
       var data = dSnap.data;
-      print('Here : ' + data['url']);
       String url = data['url'];
       TicketInfo ti = TicketInfo(
           downloadURL: url,
           date: data['Date'],
           source: data['Source'],
+          ticketType: data['Type'],
           destination: data['Destination']);
       tickets.add(ti);
       if (i == snap.documents.length) {

@@ -48,7 +48,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
     return Scaffold(
       key: homeScaffoldKey,
       appBar: AppBar(
-        title: Text('Weather'),
+        title: Center(child: Text('Weather')),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.blueGrey),
         actions: [
           // ignore: deprecated_member_use
           FlatButton(

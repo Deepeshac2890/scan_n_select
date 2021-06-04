@@ -43,6 +43,7 @@ dependencies:
   http: ^0.12.2
   webview_flutter: 1.0.0
   flutter_local_notifications: 4.0.0
+  mime_type: ^1.0.0
 
 dev_dependencies:
   flutter_test:

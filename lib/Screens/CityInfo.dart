@@ -9,7 +9,6 @@ import 'package:scan_n_select/Screens/NewsPaper.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
 
 // TODO: Add the images in firebase storage for each PTV of city and display it here.
-// TODO: Use Travel API here to get information instead of the Database.
 
 String cityName;
 
@@ -171,7 +170,7 @@ class _CityInfoState extends State<CityInfo> {
         //     fit: BoxFit.fitHeight,
         //   );
         // } else {
-        // TODO: Have to automate it here just for trial
+        // TODO: Have to automate it Image.asset here just for trial
         return new Image.asset('assets/Background/Delhi.jpg');
       },
       itemCount: 5,

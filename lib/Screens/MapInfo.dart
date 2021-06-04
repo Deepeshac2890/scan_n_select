@@ -18,8 +18,6 @@ import 'package:scan_n_select/Keys.dart';
 import 'package:scan_n_select/Services/location_service.dart';
 import 'package:scan_n_select/Services/notification_service.dart';
 
-// TODO: Add Information for PTV when clicked on marker.
-
 String cityName = '';
 
 class MapInfo extends StatefulWidget {
