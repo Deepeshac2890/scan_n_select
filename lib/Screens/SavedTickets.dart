@@ -15,8 +15,6 @@ import 'package:scan_n_select/Constants.dart';
 import 'package:scan_n_select/Screens/Generator.dart';
 import 'package:scan_n_select/Screens/TicketViewer.dart';
 
-// TODO: Add swipe left to delete function on tickets. Add animation for it also
-
 List<String> mot = ['Bus', 'Train', 'Flight'];
 const List<Choice> choices = [
   Choice('Flight', Icons.flight),
@@ -39,13 +37,17 @@ class TicketInfo {
   final String date;
   final String downloadURL;
   final String ticketType;
+  final String documentID;
+  final String mot;
 
   TicketInfo(
       {@required this.downloadURL,
       @required this.date,
       @required this.destination,
       @required this.source,
-      this.ticketType});
+      this.ticketType,
+      this.documentID,
+      this.mot});
 }
 
 class SavedTickets extends StatefulWidget {
@@ -123,15 +125,11 @@ class _SavedTicketsState extends State<SavedTickets> {
                             if (source != '' &&
                                 destination != '' &&
                                 date != '') {
-                              print(source);
-
                               File file = await FilePicker.getFile();
 
                               if (file != null) {
-                                print(file.path);
                                 final mimeType =
                                     mime(file.path.split('/').last);
-                                print(mimeType);
                                 var upload = await fbs
                                     .ref()
                                     .child(currentUserName.email)
@@ -142,7 +140,6 @@ class _SavedTicketsState extends State<SavedTickets> {
                                     .putFile(file)
                                     .onComplete;
                                 if (upload.error == null) {
-                                  print(upload.error);
                                   var downloadURL =
                                       await upload.ref.getDownloadURL();
                                   String dUrl = downloadURL.toString();
@@ -366,6 +363,7 @@ class ChoicePage extends StatefulWidget {
 class _ChoicePageState extends State<ChoicePage> {
   final Choice choice;
   List<Widget> ls = [];
+  String mot = '';
 
   _ChoicePageState(this.choice);
   @override
@@ -379,91 +377,114 @@ class _ChoicePageState extends State<ChoicePage> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
-      child: ListView(
-        children: ls,
-      ),
-    );
-  }
-
-  void getList(String mot) async {
-    List<Widget> lsi = [];
-    print('Get List Ticket Size : ${tickets.length}');
-    for (TicketInfo ti in tickets) {
-      // Get Ticket Object
-      print(ti.source + ' ' + ti.destination + ' ' + ti.date);
-      GestureDetector ticketGesture = GestureDetector(
-        onTap: () {
-          Navigator.push(
-            ctx,
-            MaterialPageRoute(
-              builder: (ctx) {
-                return TicketViewer(ti.downloadURL, ti.ticketType);
-              },
-            ),
-          );
-        },
-        child: Card(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 1,
-            height: 200,
-            padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.width * 0.1, top: 30),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: Image.asset('assets/Ticket.jpg').image),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    mot + ' Ticket',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
+        color: Colors.white,
+        child: ListView.builder(
+            itemCount: tickets.length,
+            itemBuilder: (context, index) {
+              var ti = tickets[index];
+              if (ti.mot == mot) {
+                return Dismissible(
+                  key: Key(ti.downloadURL),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) {
+                    // Delete the Ticket
+                    setState(() async {
+                      tickets.remove(index);
+                      await fs
+                          .collection('Tickets')
+                          .document(currentUserName.uid)
+                          .collection(mot)
+                          .document(ti.documentID)
+                          .delete();
+                      await fbs
+                          .ref()
+                          .child(currentUserName.email)
+                          .child('Tickets')
+                          .child(mot)
+                          .child(
+                              ti.source + '_' + ti.destination + '_' + ti.date)
+                          .delete();
+                    });
+                  },
+                  background: Container(
+                    padding: EdgeInsets.all(10),
+                    alignment: Alignment.centerRight,
+                    color: Colors.redAccent,
+                    child: Icon(Icons.delete),
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        ctx,
+                        MaterialPageRoute(
+                          builder: (ctx) {
+                            return TicketViewer(ti.downloadURL, ti.ticketType);
+                          },
+                        ),
+                      );
+                    },
+                    child: Card(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 1,
+                        height: 200,
+                        padding: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width * 0.1,
+                            top: 30),
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              fit: BoxFit.fill,
+                              image: Image.asset('assets/Ticket.jpg').image),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                mot + ' Ticket',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              'Source City : ' + ti.source,
+                              style: TextStyle(
+                                  color: Colors.white60,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              'Destination City : ' + ti.destination,
+                              style: TextStyle(
+                                  color: Colors.white60,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text('Travel Date : ' + ti.date,
+                                style: TextStyle(
+                                    color: Colors.white60,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic)),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Source City : ' + ti.source,
-                  style: TextStyle(
-                      color: Colors.white60,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Destination City : ' + ti.destination,
-                  style: TextStyle(
-                      color: Colors.white60,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text('Travel Date : ' + ti.date,
-                    style: TextStyle(
-                        color: Colors.white60,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic)),
-              ],
-            ),
-          ),
-        ),
-      );
-      lsi.add(ticketGesture);
-    }
-    setState(() {
-      ls = lsi;
-    });
+                );
+              } else {
+                return Container();
+              }
+            }));
   }
 
   void parseDatabase(String mot) async {
@@ -476,16 +497,23 @@ class _ChoicePageState extends State<ChoicePage> {
     snap.documents.forEach((dSnap) async {
       i++;
       var data = dSnap.data;
-      String url = data['url'];
+      String url = await data['url'];
       TicketInfo ti = TicketInfo(
           downloadURL: url,
-          date: data['Date'],
-          source: data['Source'],
-          ticketType: data['Type'],
-          destination: data['Destination']);
+          date: await data['Date'],
+          source: await data['Source'],
+          ticketType: await data['Type'],
+          destination: await data['Destination'],
+          documentID: dSnap.documentID,
+          mot: mot);
       tickets.add(ti);
       if (i == snap.documents.length) {
-        getList(mot);
+        // To check if widget is mounted before calling setState
+        if (mounted) {
+          setState(() {
+            this.mot = mot;
+          });
+        }
       }
     });
   }

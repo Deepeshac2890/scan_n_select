@@ -24,7 +24,9 @@ class NavDrawer extends StatelessWidget {
             leading: Icon(Icons.dashboard),
             title: Text('Dashboard'),
             onTap: () {
-              Navigator.pushNamed(context, Dashboard.id);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Dashboard();
+              }));
             },
           ),
           ListTile(
