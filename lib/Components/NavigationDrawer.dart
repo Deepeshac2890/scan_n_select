@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scan_n_select/Screens/Dashboard.dart';
 import 'package:scan_n_select/Screens/GeneratorInfoCollector.dart';
 import 'package:scan_n_select/Screens/MyProfile.dart';
+import 'package:scan_n_select/Screens/MyTripsDashboard.dart';
 import 'package:scan_n_select/Screens/SavedTickets.dart';
 import 'package:scan_n_select/Screens/SuggestorInfoCollector.dart';
 import 'package:scan_n_select/Screens/WeatherScreen.dart';
@@ -24,36 +25,70 @@ class NavDrawer extends StatelessWidget {
             leading: Icon(Icons.dashboard),
             title: Text('Dashboard'),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Dashboard();
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Dashboard();
+                  },
+                ),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.person),
             title: Text('Profile'),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Profile();
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Profile();
+                  },
+                ),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.wb_cloudy),
             title: Text('Weather'),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return WeatherScreen(null);
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return WeatherScreen(null);
+                  },
+                ),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.flight_land),
             title: Text('Saved Tickets'),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return SavedTickets();
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SavedTickets();
+                  },
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.cases),
+            title: Text('My Trips'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return MyTripDashboard();
+                  },
+                ),
+              );
             },
           ),
           Divider(),

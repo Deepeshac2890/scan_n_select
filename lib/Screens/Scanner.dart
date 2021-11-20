@@ -7,6 +7,7 @@ List<Widget> listToShow = [];
 List<String> itemsChecked = [];
 
 // TODO: Add List of Item and checklist when the scan is complete
+// TODO: Add option to edit the list of Items
 
 class Scanner extends StatefulWidget {
   static String id = 'Scanner_Screen';

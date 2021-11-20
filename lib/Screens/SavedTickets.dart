@@ -126,7 +126,19 @@ class _SavedTicketsState extends State<SavedTickets> {
                                 destination != '' &&
                                 date != '') {
                               File file = await FilePicker.getFile();
-
+                              var docSnap = await fs
+                                  .collection('Misc Data')
+                                  .document(currentUserName.uid)
+                                  .get();
+                              var data = docSnap.data;
+                              var counter = await data['Image Counter'];
+                              counter++;
+                              await fs
+                                  .collection('Misc Data')
+                                  .document(currentUserName.uid)
+                                  .setData({
+                                'Image Counter': counter,
+                              });
                               if (file != null) {
                                 final mimeType =
                                     mime(file.path.split('/').last);
@@ -135,8 +147,7 @@ class _SavedTicketsState extends State<SavedTickets> {
                                     .child(currentUserName.email)
                                     .child('Tickets')
                                     .child(selectedMode)
-                                    .child(
-                                        source + '_' + destination + '_' + date)
+                                    .child(counter.toString())
                                     .putFile(file)
                                     .onComplete;
                                 if (upload.error == null) {
@@ -384,7 +395,7 @@ class _ChoicePageState extends State<ChoicePage> {
               var ti = tickets[index];
               if (ti.mot == mot) {
                 return Dismissible(
-                  key: Key(ti.downloadURL),
+                  key: UniqueKey(),
                   direction: DismissDirection.endToStart,
                   onDismissed: (direction) {
                     // Delete the Ticket
