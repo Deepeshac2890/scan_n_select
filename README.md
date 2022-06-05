@@ -15,3 +15,4 @@ Architechture Used : Bloc
 1. Allow User to save the trips and link it to saving tickets and suggest clothes and give the user PDF.
 2. Alert users if there is any risk in the travel destination during their travel dates by using News and Weather analysis.
 3. Can add a caption generator for user's based on image that they want to upload on social media.
+4. Tip Calculator for case when we dine in.
